@@ -81,6 +81,10 @@
 		var showPickers = false; //debug
 		var showActivePlane = false; //debug
 
+		this.xEnabled = true;
+		this.yEnabled = true;
+		this.zEnabled = true;
+
 		this.init = function () {
 
 			THREE.Object3D.call( this );
@@ -189,6 +193,18 @@
 					}
 				}
 			});
+		};
+
+		this.setXEnabled = function( enabled ) {
+			this.xEnabled = enabled;
+		};
+
+		this.setYEnabled = function( enabled ) {
+			this.yEnabled = enabled;
+		};
+
+		this.setZEnabled = function( enabled ) {
+			this.zEnabled = enabled;
 		};
 
 	};

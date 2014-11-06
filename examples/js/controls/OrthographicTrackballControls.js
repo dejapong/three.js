@@ -168,8 +168,13 @@ THREE.OrthographicTrackballControls = function ( object, domElement ) {
 
 	};
 
-	this.zoomCamera = function () {
+	this.setZoom = function(value){
+		_zoomStart.y =0;
+		_zoomEnd.y =  (value - 1) / _this.zoomSpeed;
+	}
 
+	this.zoomCamera = function () {
+		
 		if ( _state === STATE.TOUCH_ZOOM ) {
 
 			var factor = _touchZoomDistanceStart / _touchZoomDistanceEnd;

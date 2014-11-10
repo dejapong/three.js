@@ -12261,7 +12261,7 @@ THREE.BufferGeometryLoader.prototype = {
 
 		var scope = this;
 
-		var loader = new THREE.XHRLoader();
+		var loader = new THREE.XHRLoader( scope.manager );
 		loader.setCrossOrigin( this.crossOrigin );
 		loader.load( url, function ( text ) {
 
@@ -12342,7 +12342,7 @@ THREE.MaterialLoader.prototype = {
 
 		var scope = this;
 
-		var loader = new THREE.XHRLoader();
+		var loader = new THREE.XHRLoader( scope.manager );
 		loader.setCrossOrigin( this.crossOrigin );
 		loader.load( url, function ( text ) {
 
@@ -12369,7 +12369,7 @@ THREE.MaterialLoader.prototype = {
 		if ( json.shininess !== undefined ) material.shininess = json.shininess;
 		if ( json.uniforms !== undefined ) material.uniforms = json.uniforms;
 		if ( json.vertexShader !== undefined ) material.vertexShader = json.vertexShader;
-		if ( json.fragmentShader !== undefined ) material.fragmentShader = json.fragmentShader;		
+		if ( json.fragmentShader !== undefined ) material.fragmentShader = json.fragmentShader;
 		if ( json.vertexColors !== undefined ) material.vertexColors = json.vertexColors;
 		if ( json.shading !== undefined ) material.shading = json.shading;
 		if ( json.blending !== undefined ) material.blending = json.blending;
@@ -32934,16 +32934,26 @@ THREE.ParametricGeometry = function ( func, slices, stacks ) {
 		stacks: stacks
 	};
 
+	this.updateSurface();
+
+};
+
+THREE.ParametricGeometry.prototype = Object.create( THREE.Geometry.prototype );
+
+THREE.ParametricGeometry.prototype.updateSurface = function() {
+
 	var verts = this.vertices;
 	var faces = this.faces;
 	var uvs = this.faceVertexUvs[ 0 ];
-
+	var func = this.parameters.func;
+	var slices = this.parameters.slices;
+	var stacks = this.parameters.stacks;
 	var i, il, j, p;
 	var u, v;
 
 	var stackCount = stacks + 1;
 	var sliceCount = slices + 1;
-
+	var vertIndex = 0;
 	for ( i = 0; i <= stacks; i ++ ) {
 
 		v = i / stacks;
@@ -32953,14 +32963,14 @@ THREE.ParametricGeometry = function ( func, slices, stacks ) {
 			u = j / slices;
 
 			p = func( u, v );
-			verts.push( p );
+			verts[vertIndex++] = p;
 
 		}
 	}
 
 	var a, b, c, d;
 	var uva, uvb, uvc, uvd;
-
+	var faceIndex = 0;
 	for ( i = 0; i < stacks; i ++ ) {
 
 		for ( j = 0; j < slices; j ++ ) {
@@ -32975,11 +32985,11 @@ THREE.ParametricGeometry = function ( func, slices, stacks ) {
 			uvc = new THREE.Vector2( ( j + 1 ) / slices, ( i + 1 ) / stacks );
 			uvd = new THREE.Vector2( j / slices, ( i + 1 ) / stacks );
 
-			faces.push( new THREE.Face3( a, b, d ) );
-			uvs.push( [ uva, uvb, uvd ] );
+			faces[faceIndex++] = new THREE.Face3( a, b, d );
+			uvs[faceIndex] = [ uva, uvb, uvd ];
 
-			faces.push( new THREE.Face3( b, c, d ) );
-			uvs.push( [ uvb.clone(), uvc, uvd.clone() ] );
+			faces[faceIndex++] = new THREE.Face3( b, c, d );
+			uvs[faceIndex] = [ uvb.clone(), uvc, uvd.clone() ];
 
 		}
 
@@ -32994,9 +33004,9 @@ THREE.ParametricGeometry = function ( func, slices, stacks ) {
 	this.computeFaceNormals();
 	this.computeVertexNormals();
 
-};
-
-THREE.ParametricGeometry.prototype = Object.create( THREE.Geometry.prototype );
+	this.verticesNeedUpdate = true;
+	this.elementsNeedUpdate = true;
+}
 
 // File:src/extras/helpers/AxisHelper.js
 

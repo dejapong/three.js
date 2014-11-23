@@ -19,8 +19,10 @@ THREE.NURBSCurve = function ( degree, knots /* array of reals */, controlPoints 
 	this.knots = knots;
 	this.controlPoints = [];
 	for (var i = 0; i < controlPoints.length; ++i) { // ensure Vector4 for control points
-		var point = controlPoints[i];
-		this.controlPoints[i] = new THREE.Vector4(point.x, point.y, point.z, point.w);
+		//TODO can we ensure it another way? I want to maintain reference on the points
+		this.controlPoints[i] = controlPoints[i];
+		// var point = controlPoints[i];
+		// this.controlPoints[i] = new THREE.Vector4(point.x, point.y, point.z, point.w);
 	}
 
 };

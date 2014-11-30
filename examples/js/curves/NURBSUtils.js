@@ -386,8 +386,48 @@ THREE.NURBSUtils = {
 
 		Sw.divideScalar(Sw.w);
 		return new THREE.Vector3(Sw.x, Sw.y, Sw.z);
+	},
+
+	/*
+		Compute new curve from knot insertion
+		A5.1 pg 151 in the NURBS Book
+
+		UP: knot vector before insertion
+		Pw: control points before insertion
+		r: number of times to insert the new knot 
+		p: degree of of curve 
+
+		UQ: knot vector after insertion
+		Qw: control points after insertion
+	*/
+	curveKnotIns:function(np,p,UP,Pw,u,k,s,r,nq,UQ,Qw){
+		var mp = np+p+1;
+		var nq = np+r;
+		var Rw = [];
+
+		/* Load new knot vector */
+		for (var i=0; i <=k; i++) UQ[i] = UP[i];
+		for (var i =1; i <=r; i++) UQ[k+i]= u;
+		for (var i=k+1; i <=mp; i++) UQ[i+r] = UP[i];
+		/* Save unaltered control points */
+		for (var i=0; i <=k-p; i++) Qw[i] = Pw[i];
+		for (var i=k-s; i<=np; i++) Qw[i+r] = Pw[i];
+		for (var i=0; i <=p-s; i++) Rw[i] = Pw[k-p+i];
+		for (var j=1; j<=r; j++){
+			var L = k-p+j;
+			for (var i=0; i<p-j-s; i++){
+				var alpha = (u-UP[L+i])/(UP[i+k+1]-UP[L+i]);
+				Rw[i] = alpha*Rw[i+1] + (1.0 - alpha) * Rw[i];
+			}
+			Qw[L] = Rw[0];
+			Qw[k+r-j-s] = Rw[p-j-s];
+		}
+		for (var i =L+1; i <k-s; i++){
+			Qw[i] = Rw[i-L];
+		}
 	}
 
+	
 };
 
 

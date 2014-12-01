@@ -19,7 +19,7 @@ THREE.NURBSUtils = {
 	p : degree
 	u : parametric value
 	U : knot vector
-	
+
 	returns the span
 	*/
 	findSpan: function( p,  u,  U ) {
@@ -38,7 +38,7 @@ THREE.NURBSUtils = {
 		var mid = Math.floor((low + high) / 2);
 
 		while (u < U[mid] || u >= U[mid + 1]) {
-		  
+
 			if (u < U[mid]) {
 				high = mid;
 			} else {
@@ -50,16 +50,16 @@ THREE.NURBSUtils = {
 
 		return mid;
 	},
-    
-		
+
+
 	/*
 	Calculate basis functions. See The NURBS Book, page 70, algorithm A2.2
-   
+
 	span : span in which u lies
 	u    : parametric point
 	p    : degree
 	U    : knot vector
-	
+
 	returns array[p+1] with basis functions values.
 	*/
 	calcBasisFunctions: function( span, u, p, U ) {
@@ -69,7 +69,7 @@ THREE.NURBSUtils = {
 		N[0] = 1.0;
 
 		for (var j = 1; j <= p; ++j) {
-	   
+
 			left[j] = u - U[span + 1 - j];
 			right[j] = U[span + j] - u;
 
@@ -93,7 +93,7 @@ THREE.NURBSUtils = {
 
 	/*
 	Calculate B-Spline curve points. See The NURBS Book, page 82, algorithm A3.1.
- 
+
 	p : degree of B-Spline
 	U : knot vector
 	P : control points (x, y, z, w)
@@ -352,7 +352,7 @@ THREE.NURBSUtils = {
 
 	/*
 	Calculate rational B-Spline surface point. See The NURBS Book, page 134, algorithm A4.3.
- 
+
 	p1, p2 : degrees of B-Spline surface
 	U1, U2 : knot vectors
 	P      : control points (x, y, z, w)
@@ -389,45 +389,64 @@ THREE.NURBSUtils = {
 	},
 
 	/*
-		Compute new curve from knot insertion
-		A5.1 pg 151 in the NURBS Book
+		Insert knot into bspline
+		A5.4 pg 164 in the NURBS Book
 
-		UP: knot vector before insertion
+		p: degree of of curve
+		U: knot vector before insertion
 		Pw: control points before insertion
-		r: number of times to insert the new knot 
-		p: degree of of curve 
+		X: new knots to be inserted
 
-		UQ: knot vector after insertion
+		Ubar: knot vector after insertion
 		Qw: control points after insertion
 	*/
-	curveKnotIns:function(np,p,UP,Pw,u,k,s,r,nq,UQ,Qw){
-		var mp = np+p+1;
-		var nq = np+r;
-		var Rw = [];
+	refineKnotVectCurve:function(p,U,Pw,X,Ubar,Qw) {
+		var n = Pw.length -1;
+		var r = X.length -1;
 
-		/* Load new knot vector */
-		for (var i=0; i <=k; i++) UQ[i] = UP[i];
-		for (var i =1; i <=r; i++) UQ[k+i]= u;
-		for (var i=k+1; i <=mp; i++) UQ[i+r] = UP[i];
-		/* Save unaltered control points */
-		for (var i=0; i <=k-p; i++) Qw[i] = Pw[i];
-		for (var i=k-s; i<=np; i++) Qw[i+r] = Pw[i];
-		for (var i=0; i <=p-s; i++) Rw[i] = Pw[k-p+i];
-		for (var j=1; j<=r; j++){
-			var L = k-p+j;
-			for (var i=0; i<p-j-s; i++){
-				var alpha = (u-UP[L+i])/(UP[i+k+1]-UP[L+i]);
-				Rw[i] = alpha*Rw[i+1] + (1.0 - alpha) * Rw[i];
+		var m = n + p + 1;
+		var a = this.findSpan(p, X[0], U);
+		var b = this.findSpan(p, X[r], U) + 1;
+
+		for (var j = 0; j < m; j++){
+			Qw[j] = new THREE.Vector4(0,0,0,1);
+		}
+
+		for (var j = 0; j <=a-p; j++) Qw[j].copy(Pw[j]);
+		for (var j = b-1; j <=n; j++) Qw[j+r+1].copy(Pw[j]);
+		for (var j = 0; j <=a; j++) Ubar[j] = U[j];
+		for (var j = b+p; j <=m; j++) Ubar[j+r+1] = U[j];
+		var i = b + p - 1;
+		var k = b + p + r;
+		for (var j = r; j >= 0; j--){
+
+			while(X[j] <= U[i] && i > a){
+				Qw[k-p-1].copy(Pw[i-p-1]);
+				Ubar[k] = U[i];
+				k--;
+				i--;
 			}
-			Qw[L] = Rw[0];
-			Qw[k+r-j-s] = Rw[p-j-s];
+
+			Qw[k-p-1].copy(Qw[k-p]);
+			for (var l=1; l <= p; l++){
+				var ind = k - p + l;
+				var alpha = Ubar[k + l] - X[j];
+				if (Math.abs(alpha) == 0.0){
+					Qw[ind-1].copy(Qw[ind]);
+				}else{
+					alpha = alpha / (Ubar[k+l] - U[i-p+l]);
+					Qw[ind-1].x = alpha * Qw[ind-1].x + (1.0 - alpha) * Qw[ind].x;
+					Qw[ind-1].y = alpha * Qw[ind-1].y + (1.0 - alpha) * Qw[ind].y;
+					Qw[ind-1].z = alpha * Qw[ind-1].z + (1.0 - alpha) * Qw[ind].z;
+				}
+			}
+			Ubar[k] = X[j];
+			k--;
 		}
-		for (var i =L+1; i <k-s; i++){
-			Qw[i] = Rw[i-L];
-		}
+
 	}
 
-	
+
 };
 
 

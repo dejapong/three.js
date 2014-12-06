@@ -403,43 +403,47 @@ THREE.NURBSUtils = {
 	refineKnotVectCurve:function(p,U,Pw,X,Ubar,Qw) {
 		var n = Pw.length -1;
 		var r = X.length -1;
-
+		var j, i, k, l, ind, alpha;
 		var m = n + p + 1;
 		var a = this.findSpan(p, X[0], U);
 		var b = this.findSpan(p, X[r], U) + 1;
 
-		for (var j = 0; j < m; j++){
+		for ( j = 0; j < m; j++){
 			Qw[j] = new THREE.Vector4(0,0,0,1);
 		}
 
-		for (var j = 0; j <=a-p; j++) Qw[j].copy(Pw[j]);
-		for (var j = b-1; j <=n; j++) Qw[j+r+1].copy(Pw[j]);
-		for (var j = 0; j <=a; j++) Ubar[j] = U[j];
-		for (var j = b+p; j <=m; j++) Ubar[j+r+1] = U[j];
-		var i = b + p - 1;
-		var k = b + p + r;
-		for (var j = r; j >= 0; j--){
+		for ( j = 0; 			j <=a-p; 	j++) Qw[j].copy(Pw[j]);
+		for ( j = b - 1; 	j <=n; 		j++) Qw[j + r + 1].copy(Pw[j]);
+		for ( j = 0; 			j <=a; 		j++) Ubar[j] = U[j];
+		for ( j = b + p; 	j <=m; 		j++) Ubar[j + r + 1] = U[j];
+		
+		i = b + p - 1;
+		k = b + p + r;
+
+		for ( j = r; j >= 0; j--){
 
 			while(X[j] <= U[i] && i > a){
-				Qw[k-p-1].copy(Pw[i-p-1]);
+				Qw[k - p - 1].copy(Pw[i - p - 1]);
 				Ubar[k] = U[i];
 				k--;
 				i--;
 			}
 
 			Qw[k-p-1].copy(Qw[k-p]);
-			for (var l=1; l <= p; l++){
-				var ind = k - p + l;
-				var alpha = Ubar[k + l] - X[j];
-				if (Math.abs(alpha) == 0.0){
-					Qw[ind-1].copy(Qw[ind]);
-				}else{
-					alpha = alpha / (Ubar[k+l] - U[i-p+l]);
-					Qw[ind-1].x = alpha * Qw[ind-1].x + (1.0 - alpha) * Qw[ind].x;
-					Qw[ind-1].y = alpha * Qw[ind-1].y + (1.0 - alpha) * Qw[ind].y;
-					Qw[ind-1].z = alpha * Qw[ind-1].z + (1.0 - alpha) * Qw[ind].z;
+			for ( l = 1; l <= p; l++){
+				ind = k - p + l;
+				alpha = Ubar[k + l] - X[j];
+				
+				if ( Math.abs(alpha) == 0.0 ){
+					Qw[ind - 1].copy(Qw[ind]);
+				} else {
+					alpha = alpha / (Ubar[k + l] - U[i - p + l]);
+					Qw[ind - 1].x = alpha * Qw[ind - 1].x + (1.0 - alpha) * Qw[ind].x;
+					Qw[ind - 1].y = alpha * Qw[ind - 1].y + (1.0 - alpha) * Qw[ind].y;
+					Qw[ind - 1].z = alpha * Qw[ind - 1].z + (1.0 - alpha) * Qw[ind].z;
 				}
 			}
+			
 			Ubar[k] = X[j];
 			k--;
 		}

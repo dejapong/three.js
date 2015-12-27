@@ -20,6 +20,15 @@ Menubar.Add = function ( editor ) {
 
 	var meshCount = 0;
 	var lightCount = 0;
+	var cameraCount = 0;
+
+	editor.signals.editorCleared.add( function () {
+
+		meshCount = 0;
+		lightCount = 0;
+		cameraCount = 0;
+
+	} );
 
 	// Group
 
@@ -98,7 +107,7 @@ Menubar.Add = function ( editor ) {
 	option.onClick( function () {
 
 		var radius = 20;
-		var segments = 8;
+		var segments = 32;
 
 		var geometry = new THREE.CircleGeometry( radius, segments );
 		var mesh = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial() );
@@ -120,7 +129,7 @@ Menubar.Add = function ( editor ) {
 		var radiusTop = 20;
 		var radiusBottom = 20;
 		var height = 100;
-		var radiusSegments = 8;
+		var radiusSegments = 32;
 		var heightSegments = 1;
 		var openEnded = false;
 
@@ -227,9 +236,35 @@ Menubar.Add = function ( editor ) {
 	} );
 	options.add( option );
 
-	//
+	/*
+	// Teapot
 
-	options.add( new UI.HorizontalRule() );
+	var option = new UI.Panel();
+	option.setClass( 'option' );
+	option.setTextContent( 'Teapot' );
+	option.onClick( function () {
+
+		var size = 50;
+		var segments = 10;
+		var bottom = true;
+		var lid = true;
+		var body = true;
+		var fitLid = false;
+		var blinnScale = true;
+
+		var material = new THREE.MeshPhongMaterial();
+		material.side = 2;
+
+		var geometry = new THREE.TeapotBufferGeometry( size, segments, bottom, lid, body, fitLid, blinnScale );
+		var mesh = new THREE.Mesh( geometry, material );
+		mesh.name = 'Teapot ' + ( ++ meshCount );
+
+		editor.addObject( mesh );
+		editor.select( mesh );
+
+	} );
+	options.add( option );
+	*/
 
 	// Sprite
 
@@ -354,6 +389,26 @@ Menubar.Add = function ( editor ) {
 
 		editor.addObject( light );
 		editor.select( light );
+
+	} );
+	options.add( option );
+
+	//
+
+	options.add( new UI.HorizontalRule() );
+
+	// PerspectiveCamera
+
+	var option = new UI.Panel();
+	option.setClass( 'option' );
+	option.setTextContent( 'PerspectiveCamera' );
+	option.onClick( function() {
+
+		var camera = new THREE.PerspectiveCamera( 50, 1, 1, 10000 );
+		camera.name = 'PerspectiveCamera ' + ( ++ cameraCount );
+
+		editor.addObject( camera );
+		editor.select( camera );
 
 	} );
 	options.add( option );

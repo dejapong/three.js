@@ -22,13 +22,4 @@ THREE.CompressedTexture = function ( mipmaps, width, height, format, type, mappi
 };
 
 THREE.CompressedTexture.prototype = Object.create( THREE.Texture.prototype );
-
-THREE.CompressedTexture.prototype.clone = function () {
-
-	var texture = new THREE.CompressedTexture();
-
-	THREE.Texture.prototype.clone.call( this, texture );
-
-	return texture;
-
-};
+THREE.CompressedTexture.prototype.constructor = THREE.CompressedTexture;

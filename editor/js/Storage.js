@@ -8,7 +8,7 @@ var Storage = function () {
 
 	if ( indexedDB === undefined  ) {
 		console.warn( 'Storage: IndexedDB not available.' );
-		return { init: function (){}, get: function (){}, set: function (){}, clear: function (){} };
+		return { init: function () {}, get: function () {}, set: function () {}, clear: function () {} };
 	}
 
 	var name = 'threejs-editor';
@@ -76,14 +76,14 @@ var Storage = function () {
 
 		},
 
-		clear: function ( callback ) {
+		clear: function () {
 
 			var transaction = database.transaction( [ 'states' ], 'readwrite' );
 			var objectStore = transaction.objectStore( 'states' );
 			var request = objectStore.clear();
 			request.onsuccess = function ( event ) {
 
-				callback();
+				console.log( '[' + /\d\d\:\d\d\:\d\d/.exec( new Date() )[ 0 ] + ']', 'Cleared IndexedDB.' );
 
 			};
 

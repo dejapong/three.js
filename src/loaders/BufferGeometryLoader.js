@@ -36,7 +36,16 @@ THREE.BufferGeometryLoader.prototype = {
 
 		var geometry = new THREE.BufferGeometry();
 
-		var attributes = json.attributes;
+		var index = json.data.index;
+
+		if ( index !== undefined ) {
+
+			var typedArray = new self[ index.type ]( index.array );
+			geometry.setIndex( new THREE.BufferAttribute( typedArray, 1 ) );
+
+		}
+
+		var attributes = json.data.attributes;
 
 		for ( var key in attributes ) {
 
@@ -47,15 +56,21 @@ THREE.BufferGeometryLoader.prototype = {
 
 		}
 
-		var offsets = json.offsets;
+		var groups = json.data.groups || json.data.drawcalls || json.data.offsets;
 
-		if ( offsets !== undefined ) {
+		if ( groups !== undefined ) {
 
-			geometry.offsets = JSON.parse( JSON.stringify( offsets ) );
+			for ( var i = 0, n = groups.length; i !== n; ++ i ) {
+
+				var group = groups[ i ];
+
+				geometry.addGroup( group.start, group.count );
+
+			}
 
 		}
 
-		var boundingSphere = json.boundingSphere;
+		var boundingSphere = json.data.boundingSphere;
 
 		if ( boundingSphere !== undefined ) {
 

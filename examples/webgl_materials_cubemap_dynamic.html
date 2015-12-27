@@ -173,7 +173,6 @@
 				spotLight.shadowCameraFov = 50;
 
 				spotLight.shadowBias = -0.00125;
-				spotLight.shadowDarkness = 0.5;
 				spotLight.shadowMapWidth = SHADOW_MAP_WIDTH;
 				spotLight.shadowMapHeight = SHADOW_MAP_HEIGHT;
 
@@ -187,14 +186,15 @@
 				// RENDERER
 
 				renderer = new THREE.WebGLRenderer( { antialias: false } );
-				renderer.setClearColor( scene.fog.color, 1 );
+				renderer.setClearColor( scene.fog.color );
+				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( SCREEN_WIDTH, SCREEN_HEIGHT );
 				container.appendChild( renderer.domElement );
 
 				// SHADOW
 
-				renderer.shadowMapCullFace = THREE.CullFaceBack;
-				renderer.shadowMapEnabled = true;
+				renderer.shadowMap.cullFace = THREE.CullFaceBack;
+				renderer.shadowMap.enabled = true;
 
 				// STATS
 
@@ -214,22 +214,22 @@
 
 					body: [],
 
-					"Chrome": new THREE.MeshLambertMaterial( { color: 0xffffff, ambient: 0xffffff, envMap: cubeTarget  } ),
+					"Chrome": new THREE.MeshLambertMaterial( { color: 0xffffff, envMap: cubeTarget  } ),
 
-					"Dark chrome": new THREE.MeshLambertMaterial( { color: 0x444444, ambient: 0x444444, envMap: cubeTarget } ),
+					"Dark chrome": new THREE.MeshLambertMaterial( { color: 0x444444, envMap: cubeTarget } ),
 
-					"Black rough": new THREE.MeshLambertMaterial( { color: 0x050505, ambient: 0x050505 } ),
+					"Black rough": new THREE.MeshLambertMaterial( { color: 0x050505, } ),
 
-					"Dark glass": new THREE.MeshLambertMaterial( { color: 0x101020, ambient: 0x101020, envMap: cubeTarget, opacity: 0.5, transparent: true } ),
-					"Orange glass": new THREE.MeshLambertMaterial( { color: 0xffbb00, ambient: 0xffbb00, opacity: 0.5, transparent: true } ),
-					"Red glass": new THREE.MeshLambertMaterial( { color: 0xff0000, ambient: 0xff0000, opacity: 0.5, transparent: true } ),
+					"Dark glass": new THREE.MeshLambertMaterial( { color: 0x101020, envMap: cubeTarget, opacity: 0.5, transparent: true } ),
+					"Orange glass": new THREE.MeshLambertMaterial( { color: 0xffbb00, opacity: 0.5, transparent: true } ),
+					"Red glass": new THREE.MeshLambertMaterial( { color: 0xff0000, opacity: 0.5, transparent: true } ),
 
-					"Black metal": new THREE.MeshLambertMaterial( { color: 0x222222, ambient: 0x222222, envMap: cubeTarget, combine: THREE.MultiplyOperation } ),
-					"Orange metal": new THREE.MeshLambertMaterial( { color: 0xff6600, ambient: 0xff6600, envMap: cubeTarget, combine: THREE.MultiplyOperation } )
+					"Black metal": new THREE.MeshLambertMaterial( { color: 0x222222, envMap: cubeTarget, combine: THREE.MultiplyOperation } ),
+					"Orange metal": new THREE.MeshLambertMaterial( { color: 0xff6600, envMap: cubeTarget, combine: THREE.MultiplyOperation } )
 
-				}
+				};
 
-				mlib.body.push( [ "Orange", new THREE.MeshLambertMaterial( { color: 0x883300, ambient: 0x883300, envMap: cubeTarget, combine: THREE.MixOperation, reflectivity: 0.1 } ) ] );
+				mlib.body.push( [ "Orange", new THREE.MeshLambertMaterial( { color: 0x883300, envMap: cubeTarget, combine: THREE.MixOperation, reflectivity: 0.1 } ) ] );
 				mlib.body.push( [ "Blue", new THREE.MeshLambertMaterial( { color: 0x113355, envMap: cubeTarget, combine: THREE.MixOperation, reflectivity: 0.1 } ) ] );
 				mlib.body.push( [ "Red", new THREE.MeshLambertMaterial( { color: 0x660000, envMap: cubeTarget, combine: THREE.MixOperation, reflectivity: 0.1 } ) ] );
 				mlib.body.push( [ "Black", new THREE.MeshLambertMaterial( { color: 0x000000, envMap: cubeTarget, combine: THREE.MixOperation, reflectivity: 0.2 } ) ] );
@@ -261,11 +261,11 @@
 
 					var params  = {
 
-						"a" : { map: flareA, useScreenCoordinates: false, color: 0xffffff, blending: THREE.AdditiveBlending },
-						"b" : { map: flareB, useScreenCoordinates: false, color: 0xffffff, blending: THREE.AdditiveBlending },
+						"a" : { map: flareA, color: 0xffffff, blending: THREE.AdditiveBlending },
+						"b" : { map: flareB, color: 0xffffff, blending: THREE.AdditiveBlending },
 
-						"ar" : { map: flareA, useScreenCoordinates: false, color: 0xff0000, blending: THREE.AdditiveBlending },
-						"br" : { map: flareB, useScreenCoordinates: false, color: 0xff0000, blending: THREE.AdditiveBlending }
+						"ar" : { map: flareA, color: 0xff0000, blending: THREE.AdditiveBlending },
+						"br" : { map: flareB, color: 0xff0000, blending: THREE.AdditiveBlending }
 
 					};
 
@@ -544,8 +544,7 @@
 
 			//
 
-			var shadowTexture = new THREE.Texture( canvas );
-			shadowTexture.needsUpdate = true;
+			var shadowTexture = new THREE.CanvasTexture( canvas );
 
 			var shadowPlane = new THREE.PlaneBufferGeometry( 400, 400 );
 			var shadowMaterial = new THREE.MeshBasicMaterial( {
@@ -557,7 +556,7 @@
 
 			function addObject( geometry, color, x, y, z, sy ) {
 
-				var object = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: color, ambient: color } ) );
+				var object = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: color } ) );
 				object.position.set( x, y, z );
 				object.castShadow = true;
 				object.receiveShadow = true;
@@ -790,7 +789,7 @@
 
 				}
 
-			};
+			}
 
 			function onKeyUp ( event ) {
 
@@ -810,7 +809,7 @@
 
 				}
 
-			};
+			}
 
 
 			//
@@ -886,7 +885,7 @@
 				v = THREE.Math.clamp( v + 0.5 * delta * vdir, 0.1, 0.9 );
 				scene.fog.color.setHSL( 0.51, 0.5, v * 0.75 );
 
-				renderer.setClearColor( scene.fog.color, 1 );
+				renderer.setClearColor( scene.fog.color );
 
 				var vnorm = ( v - 0.05 ) / ( 0.9 - 0.05 );
 
@@ -981,7 +980,7 @@
 				// render scene
 
 				renderer.autoClear = false;
-				renderer.shadowMapEnabled = true;
+				renderer.shadowMap.enabled = true;
 
 				camera.lookAt( cameraTarget );
 
@@ -990,7 +989,7 @@
 				renderer.clear();
 				composer.render( 0.1 );
 
-				renderer.shadowMapEnabled = false;
+				renderer.shadowMap.enabled = false;
 
 			}
 

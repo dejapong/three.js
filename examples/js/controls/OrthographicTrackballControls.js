@@ -227,6 +227,11 @@ THREE.OrthographicTrackballControls = function ( object, domElement ) {
 		}
 
 	}() );
+	
+	this.setZoom = function(value){
+		_zoomStart.y =0;
+		_zoomEnd.y =  (value - 1) / _this.zoomSpeed;
+	}
 
 	this.zoomCamera = function () {
 
@@ -427,7 +432,7 @@ THREE.OrthographicTrackballControls = function ( object, domElement ) {
 		}
 
 		if ( _state === STATE.ROTATE && ! _this.noRotate ) {
-
+			
 			_rotateStart.copy( getMouseProjectionOnBall( event.pageX, event.pageY ) );
 			_rotateEnd.copy( _rotateStart );
 
